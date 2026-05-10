@@ -18,6 +18,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+using(IServiceScope scope = app.Services.CreateScope())
+{
+    IServiceProvider services = scope.ServiceProvider;
+    ContosoUniversityContext context = services.GetRequiredService<ContosoUniversityContext>();
+    context.Database.EnsureCreated();
+    DbInitializer.Initialize(context);
+}
+
 app.UseHttpsRedirection();
 
 app.UseRouting();

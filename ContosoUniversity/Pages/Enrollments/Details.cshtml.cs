@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ContosoUniversity.Data;
 using ContosoUniversity.Models;
 
-namespace ContosoUniversity.Pages.Students
+namespace ContosoUniversity.Pages.Enrollments
 {
     public class DetailsModel : PageModel
     {
@@ -19,7 +19,7 @@ namespace ContosoUniversity.Pages.Students
             _context = context;
         }
 
-        public Student Student { get; set; } = default!;
+        public Enrollment Enrollment { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -28,11 +28,11 @@ namespace ContosoUniversity.Pages.Students
                 return NotFound();
             }
 
-            var student = await _context.Students.FirstOrDefaultAsync(m => m.ID == id);
+            var enrollment = await _context.Enrollments.FirstOrDefaultAsync(m => m.EnrollmentID == id);
 
-            if (student is not null)
+            if (enrollment is not null)
             {
-                Student = student;
+                Enrollment = enrollment;
 
                 return Page();
             }
