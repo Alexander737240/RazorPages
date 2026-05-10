@@ -26,7 +26,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Enrollment) {
+@foreach (ContosoUniversity.Models.Enrollment item in Model.Enrollment) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Grade)
@@ -35,7 +35,7 @@
                 @Html.DisplayFor(modelItem => item.Course.CourseID)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Student.ID)
+                    @Html.DisplayFor(modelItem => item.Student.FullName)
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.EnrollmentID">Edit</a> |
