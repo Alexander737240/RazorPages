@@ -2,41 +2,115 @@
 @model ContosoUniversity.Pages.Courses.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Courses";
 }
 
-<h1>Index</h1>
+<div class="index-tools">
+    <div class="index-left-side">
+        <h1>Courses</h1>
+        <div class="create-button">
+            <a asp-page="Create" class="btn btn-primary">Create New</a>
+        </div>
+    </div>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+    <form asp-page="./Index" method="get">
+        <div>
+            <label for="searchString">Поиск по названию:</label>
+            <input type="text" name="searchString" id="searchString" value="@Model.CurrentFilter" />
+            <input type="submit" value="Search" class="btn btn-primary" />
+            <a asp-page="./Index">Сбросить</a>
+        </div>
+    </form>
+</div>
+
+<div class="page-size-selector">
+    <label for="pageSize">Показывать записей:</label>
+    <select id="pageSize" name="pageSize" onchange="changePageSize(this.value)">
+        <option value="5" selected="@(Model.CurrentPageSize == 5)">5</option>
+        <option value="10" selected="@(Model.CurrentPageSize == 10)">10</option>
+        <option value="20" selected="@(Model.CurrentPageSize == 20)">20</option>
+        <option value="50" selected="@(Model.CurrentPageSize == 50)">50</option>
+    </select>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Course[0].Title)
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.TitleSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.Course[0].Title)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Course[0].Credits)
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.CreditsSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.Course[0].Credits)
+                </a>
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Course) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Credits)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.CourseID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.CourseID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.CourseID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Course)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Credits)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.CourseID">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.CourseID">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.CourseID">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@{
+    string prevDisabled = Model.Course.HasPreviousPage ? "" : "disabled";
+    string nextDisabled = Model.Course.HasNextPage ? "" : "disabled";
+}
+
+<div class="pagination-controls">
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.Course.PageIndex - 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.CurrentPageSize"
+       class="btn btn-primary @prevDisabled">
+        Prev
+    </a>
+
+    <span>
+        Страница @Model.Course.PageIndex из @Model.Course.TotalPages
+    </span>
+
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.Course.PageIndex + 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.CurrentPageSize"
+       class="btn btn-primary @nextDisabled">
+        Next
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function changePageSize(size) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('pageSize', size);
+            url.searchParams.set('pageIndex', 1);
+            window.location.href = url.toString();
+        }
+    </script>
+}

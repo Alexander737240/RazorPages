@@ -2,47 +2,131 @@
 @model ContosoUniversity.Pages.Enrollments.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Enrollments";
 }
 
-<h1>Index</h1>
+<div class="index-tools">
+    <div class="index-left-side">
+        <h1>Enrollments</h1>
+        <div class="create-button">
+            <a asp-page="Create" class="btn btn-primary">Create New</a>
+        </div>
+    </div>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+    <form asp-page="./Index" method="get">
+        <div style="display: flex; gap: 10px;">
+            <div class="search">
+                <label for="searchString">Поиск:</label>
+                <input type="text" name="searchString" id="searchString" value="@Model.CurrentFilter"
+                       placeholder="Студент или курс..." />
+            </div>
+            <div class="search-button">
+                <input type="submit" value="Search" class="btn btn-primary" />
+                <a asp-page="./Index">Сбросить</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="page-size-selector">
+    <label for="pageSize">Показывать записей:</label>
+    <select id="pageSize" name="pageSize" onchange="changePageSize(this.value)">
+        <option value="5" selected="@(Model.CurrentPageSize == 5)">5</option>
+        <option value="10" selected="@(Model.CurrentPageSize == 10)">10</option>
+        <option value="20" selected="@(Model.CurrentPageSize == 20)">20</option>
+        <option value="50" selected="@(Model.CurrentPageSize == 50)">50</option>
+    </select>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Enrollment[0].Grade)
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.GradeSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.Enrollment[0].Grade)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Enrollment[0].Course)
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.CourseSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.Enrollment[0].Course)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Enrollment[0].Student.FullName)
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.StudentSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.Enrollment[0].Student.FullName)
+                </a>
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (ContosoUniversity.Models.Enrollment item in Model.Enrollment) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Grade)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Course.CourseID)
-            </td>
-            <td>
+        @foreach (var item in Model.Enrollment)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Grade)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Title)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Student.FullName)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.EnrollmentID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.EnrollmentID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.EnrollmentID">Delete</a>
-            </td>
-        </tr>
-}
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.EnrollmentID">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.EnrollmentID">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.EnrollmentID">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@{
+    string prevDisabled = Model.Enrollment.HasPreviousPage ? "" : "disabled";
+    string nextDisabled = Model.Enrollment.HasNextPage ? "" : "disabled";
+}
+
+<div class="pagination-controls">
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.Enrollment.PageIndex - 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.CurrentPageSize"
+       class="btn btn-primary @prevDisabled">
+        Prev
+    </a>
+
+    <span>
+        Страница @Model.Enrollment.PageIndex из @Model.Enrollment.TotalPages
+    </span>
+
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.Enrollment.PageIndex + 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.CurrentPageSize"
+       class="btn btn-primary @nextDisabled">
+        Next
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function changePageSize(size) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('pageSize', size);
+            url.searchParams.set('pageIndex', 1);
+            window.location.href = url.toString();
+        }
+    </script>
+}
