@@ -1,7 +1,6 @@
 ﻿@page
 @model ContosoUniversity.Pages.Students.IndexModel
 
-
 @{
     ViewData["Title"] = "Students";
 }
@@ -23,58 +22,106 @@
     </form>
 </div>
 
+<div class="page-size-selector" style="margin: 15px 0;">
+    <label for="pageSize">Показывать записей:</label>
+    <select id="pageSize" name="pageSize" onchange="changePageSize(this.value)" class="form-control" style="width: auto; display: inline-block; margin-left: 10px;">
+        <option value="5" selected="@(Model.CurrentPageSize == 5)">5</option>
+        <option value="10" selected="@(Model.CurrentPageSize == 10)">10</option>
+        <option value="20" selected="@(Model.CurrentPageSize == 20)">20</option>
+        <option value="50" selected="@(Model.CurrentPageSize == 50)">50</option>
+    </select>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort">@Html.DisplayNameFor(model => model.PLStudents[0].LastName)</a>
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.NameSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.PLStudents[0].LastName)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PLStudents[0].FirstName)
+                <a asp-page="./Index"
+                   asp-route-sortOrder=""
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.PLStudents[0].FirstName)
+                </a>
             </th>
             <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort">@Html.DisplayNameFor(model => model.PLStudents[0].EnrollmentDate)</a>
+                <a asp-page="./Index"
+                   asp-route-sortOrder="@Model.DateSort"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   asp-route-pageSize="@Model.CurrentPageSize">
+                    @Html.DisplayNameFor(model => model.PLStudents[0].EnrollmentDate)
+                </a>
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.PLStudents) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EnrollmentDate)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.PLStudents)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EnrollmentDate)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
-@{
-    string prevDisabled = Model.PLStudents.HasPreviousPage ? " " : "disabled";
-    string nextDisabled = Model.PLStudents.HasNextPage ? " " : "disabled";
-}
-<a asp-page="./Index"
-   asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.PLStudents.PageIndex-1)"
-   asp-route-currentFIlter="@Model.CurrentFilter"
-   class="btn btn-primary @prevDisabled"
->
-Prev</a>
-<a asp-page="./Index"
-   asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.PLStudents.PageIndex+1)"
-   asp-route-currentFIlter="@Model.CurrentFilter"
-   class="btn btn-primary @nextDisabled"
->
-Next</a>
 
+@{
+    string prevDisabled = Model.PLStudents.HasPreviousPage ? "" : "disabled";
+    string nextDisabled = Model.PLStudents.HasNextPage ? "" : "disabled";
+}
+
+<div class="pagination-controls">
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PLStudents.PageIndex - 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.CurrentPageSize"
+       class="btn btn-primary @prevDisabled">
+        Prev
+    </a>
+
+    <span style="margin: 0 15px;">
+        Страница @Model.PLStudents.PageIndex из @Model.PLStudents.TotalPages
+        @* Убираем отображение общего количества записей, так как нет TotalCount *@
+    </span>
+
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PLStudents.PageIndex + 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.CurrentPageSize"
+       class="btn btn-primary @nextDisabled">
+        Next
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function changePageSize(size) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('pageSize', size);
+            url.searchParams.set('pageIndex', 1);
+            window.location.href = url.toString();
+        }
+    </script>
+}

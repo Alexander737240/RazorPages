@@ -10,3 +10,29 @@
 {
     margin: 0px 16px
 }
+.page-size-selector {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+}
+
+    .page-size-selector select {
+        width: auto;
+        display: inline-block;
+        margin-left: 10px;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+.pagination-controls {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+}
+
+    .pagination-controls span {
+        margin: 0 15px;
+        font-size: 14px;
+        color: #666;
+    }

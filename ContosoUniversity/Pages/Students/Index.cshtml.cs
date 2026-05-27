@@ -28,43 +28,60 @@ namespace ContosoUniversity.Pages.Students
         public string CurrentSort { get; set; }
         public PaginatedList<Student> PLStudents { get; set; }
 
+        public int CurrentPageSize { get; set; }
+
         public IQueryable<Student> Students { get; set; } = default!;
 
-        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex)
+        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex, int? pageSize)
         {
             CurrentSort = sortOrder;
-            NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
+            NameSort = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             DateSort = sortOrder == "Date" ? "date_desc" : "Date";
 
-            if (searchString != null) pageIndex = 1;
-            else searchString = CurrentSort;
-            CurrentFilter = searchString;
+            if (searchString != null)
+            {
+                pageIndex = 1;
+                CurrentFilter = searchString;
+            }
+            else
+            {
+                CurrentFilter = CurrentFilter ?? "";
+            }
+
+            CurrentPageSize = pageSize ?? configuration.GetValue("PageSize", 5);
 
             IQueryable<Student> students = from s in _context.Students select s;
 
-            if(!String.IsNullOrEmpty(searchString))
-                students = students .
-                    Where(s => s.LastName.Contains(searchString) || s.FirstName.Contains(searchString));
-            
+            if (!string.IsNullOrEmpty(CurrentFilter))
+            {
+                students = students.Where(s => s.LastName.Contains(CurrentFilter) ||
+                                              s.FirstName.Contains(CurrentFilter));
+            }
 
             switch (sortOrder)
             {
-                case "name_desc": students = students.OrderByDescending(s => s.LastName); break;
-                case "date_desc": students = students.OrderByDescending(s => s.EnrollmentDate); break;
-                case "Date": students = students.OrderBy(s => s.EnrollmentDate); break;
-                default: students = students.OrderBy(s => s.LastName); break;
-
+                case "name_desc":
+                    students = students.OrderByDescending(s => s.LastName);
+                    break;
+                case "Date":
+                    students = students.OrderBy(s => s.EnrollmentDate);
+                    break;
+                case "date_desc":
+                    students = students.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                default:
+                    students = students.OrderBy(s => s.LastName);
+                    break;
             }
-            //this.Students = await students.AsNoTracking().ToListAsync();
-            this.Students = students;
-            int pageSize = configuration.GetValue("PageSize", 5);
-            this.PLStudents = await PaginatedList<Student>.CreateAsync(Students.AsNoTracking(), pageIndex ?? 1, pageSize);
-        }
 
-        //    public async Task OnGetAsync()
-        //    {
-        //        Student = await _context.Students.ToListAsync();
-        //    }
-        //}
+            this.Students = students;
+
+            this.PLStudents = await PaginatedList<Student>.CreateAsync(
+                Students.AsNoTracking(),
+                pageIndex ?? 1,
+                CurrentPageSize
+            );
+        }
     }
 }
